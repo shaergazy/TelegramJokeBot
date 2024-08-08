@@ -14,8 +14,23 @@ internal class Program
 
     private static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
     {
+        string welcomeMessage = "Привет! Я ваш бот для шуток. Если вам скучно и вы хотите посмеяться, просто введите 'ха' или 'ha', и я расскажу вам шутку.\n\nИнструкция:\n1. Найдите удобное место, потому что шутки настолько смешные, что могут вызвать падение со стула.\n2. Убедитесь, что рядом никого нет, чтобы не напугать людей своим громким смехом.\n3. Введите 'ха' или 'ha'.\n4. Приготовьтесь держаться за живот от смеха!\n\nПусть смех начнется! 😂";
+
         var message = update.Message;
-        if(message.Text.ToLower().Contains("ha") || message.Text.ToLower().Contains("ха") || message.Text == "/start")
+        if (message == null)
+            return;
+        if (message.Text == "/start")
+        {
+            await bot.SendTextMessageAsync(message.Chat.Id, welcomeMessage);
+            await SendJokeAsync(message);
+        }
+        else if (message.Text.ToLower().Contains("ha") || message.Text.ToLower().Contains("ха"))
+        {
+            await SendJokeAsync(message);
+        }
+    }
+
+    public static async Task SendJokeAsync(Message message)
         {
             var joke = GetJoke<Joke>().Result;
             if (joke.type == "single")
@@ -43,7 +58,7 @@ internal class Program
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 var response = await client
-                    .GetAsync("https://v2.jokeapi.dev/joke/Dark")
+                    .GetAsync("https://v2.jokeapi.dev/joke/Dark,Programming")
                     .ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
